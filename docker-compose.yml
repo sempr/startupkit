@@ -1,0 +1,121 @@
+version: "3"
+
+services:
+  acme:
+    image: goacme/lego:latest
+    entrypoint: []
+    command:
+      - /bin/sh
+      - /cert.sh
+    volumes:
+      - ./data/acme:/work
+      - ./bin/cert.sh:/cert.sh
+    working_dir: /work
+    env_file:
+      - cf.env
+    environment:
+      - FULL_DOMAIN=demo.bigking.tk
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./data/acme/.lego/certificates:/etc/nginx/ssl:ro
+      - ./conf/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./conf/nginx/inc.d:/etc/nginx/inc.d:ro
+      - ./data/www:/var/www:ro
+    restart: always
+    network_mode: host
+  gitea2:
+    image: gitea/gitea:latest
+    user: git
+    command:
+      - /bin/sh
+      - /init-gitea.sh
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./data/gitea:/data
+      - ./bin/init-gitea.sh:/init-gitea.sh
+  gitea:
+    image: gitea/gitea:latest
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - TZ=Asia/Shanghai
+    restart: always
+    volumes:
+      - ./data/gitea:/data
+    ports:
+      - "127.0.0.1:3000:3000"
+      - "2222:22"
+  ldap:
+    image: osixia/openldap:1.3.0
+    restart: always
+    command:
+      - --copy-service
+      - --loglevel=debug
+    environment:
+      LDAP_ORGANISATION: "DEMO-CORP"
+      LDAP_DOMAIN: "demo.bigking.tk"
+      LDAP_ADMIN_PASSWORD: "bigkingAdmin2019"
+      LDAP_CONFIG_PASSWORD: "bingkingConfig2019"
+      LDAP_READONLY_USER: "true"
+      LDAP_READONLY_USER_USERNAME: "readonly"
+      LDAP_READONLY_USER_PASSWORD: "readonly2019"
+      LDAP_BACKEND: "mdb"
+      LDAP_TLS: "false"
+      LDAP_REMOVE_CONFIG_AFTER_SETUP: "false"
+      ## if your ssl certs ready, de comment the lines below
+      # LDAP_TLS_CRT_FILENAME: "demo.bigking.tk.crt"
+      # LDAP_TLS_KEY_FILENAME: "demo.bigking.tk.key"
+      # LDAP_TLS_CA_CRT_FILENAME: "demo.bigking.tk.issuer.crt"
+      # LDAP_TLS_DH_PARAM_FILENAME: "dhparams.pem"
+      # LDAP_TLS_VERIFY_CLIENT: "try"
+    ports:
+      - "636:636"
+      - "389:389"
+    volumes:
+      - "./data/ldap/conf:/etc/ldap/slapd.d"
+      - "./data/ldap/lib:/var/lib/ldap"
+      - "./data/acme/.lego/certificates:/container/service/slapd/assets/certs"
+      - "./data/ldap/custom/main.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/main.ldif"
+  ldap-fe:
+    depends_on:
+      - ldap
+    image: osixia/phpldapadmin:0.9.0
+    ports:
+      - "18000:80"
+    restart: always
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: "ldap"
+      PHPLDAPADMIN_HTTPS: "false"
+  drone-server:
+    image: drone/drone:1.6.3
+    ports:
+      - 127.0.0.1:8020:80
+    volumes:
+      - ./data:/data
+    restart: always
+    environment:
+      - DRONE_GIT_ALWAYS_AUTH=true
+      - DRONE_GITEA_SERVER=https://git.demo.bigking.tk
+      - DRONE_GITEA_CLIENT_ID=${DRONE_GITEA_CLIENT_ID}
+      - DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
+      - DRONE_OPEN=false
+      - DRONE_SERVER_HOST=drone.demo.bigking.tk
+      - DRONE_SERVER_PROTO=https
+      - DRONE_TLS_AUTOCERT=false
+      - DRONE_RPC_SECRET=${DRONE_SECRET}
+      - DRONE_AGENTS_ENABLED=true
+      - DRONE_USER_CREATE=username:tiger,admin:true
+  drone-agent:
+    image: drone/agent:1.6.2
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    environment:
+      - DRONE_RPC_SERVER=https://drone.demo.bigking.tk
+      - DRONE_RPC_SECRET=b4931aeea1f94345d769f7604bcbf250
+      - DRONE_RUNNER_CAPACITY=3
+      - DRONE_RUNNER_NAME=bigking

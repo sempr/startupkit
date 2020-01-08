@@ -1,0 +1,89 @@
+##### users and groups organizationalUnit
+# ou-users
+dn: ou=users,{{ LDAP_BASE_DN }}
+objectclass: organizationalUnit
+objectclass: top
+ou: users
+
+# ou=groups
+dn: ou=groups,{{ LDAP_BASE_DN }}
+objectclass: organizationalUnit
+objectclass: top
+ou: groups
+
+##### all the users first
+dn: uid=bear,ou=users,{{ LDAP_BASE_DN }}
+cn: Bear
+gidnumber: 65534
+givenname: Bear
+homedirectory: /tmp/
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: Bear
+uid: bear
+uidnumber: 10002
+userpassword: password10000
+
+dn: uid=lion,ou=users,{{ LDAP_BASE_DN }}
+cn: Lion
+gidnumber: 65534
+givenname: Lion
+homedirectory: /tmp/
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: Lion
+uid: lion
+uidnumber: 10003
+userpassword: password10000
+
+dn: uid=rabbit,ou=users,{{ LDAP_BASE_DN }}
+cn: Rabbit
+gidnumber: 65534
+givenname: Rabbit
+homedirectory: /tmp/
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: Rabbit
+uid: rabbit
+uidnumber: 10004
+userpassword: password10000
+
+dn: uid=zookeeper,ou=users,{{ LDAP_BASE_DN }}
+cn: ZooKeeper
+gidnumber: 65534
+givenname: zookeeper
+homedirectory: /tmp/
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: zookeeper
+uid: zookeeper
+uidnumber: 10006
+userpassword: password10000
+
+################################################################
+#### all the groups later
+dn: cn=admin,ou=groups,{{ LDAP_BASE_DN }}
+cn: admin
+uniquemember: uid=zookeeper,ou=users,{{ LDAP_BASE_DN }}
+objectclass: groupOfUniqueNames
+objectclass: top
+
+dn: cn=carnivore,ou=groups,{{ LDAP_BASE_DN }}
+cn: carnivore
+uniquemember: uid=lion,ou=users,{{ LDAP_BASE_DN }}
+uniquemember: uid=bear,ou=users,{{ LDAP_BASE_DN }}
+uniquemember: uid=dog,ou=users,{{ LDAP_BASE_DN }}
+objectclass: groupOfUniqueNames
+objectclass: top
+
+dn: cn=herbivore,ou=groups,{{ LDAP_BASE_DN }}
+cn: herbivore
+uniquemember: uid=rabbit,ou=users,{{ LDAP_BASE_DN }}
+uniquemember: uid=bear,ou=users,{{ LDAP_BASE_DN }}
+uniquemember: uid=dog,ou=users,{{ LDAP_BASE_DN }}
+objectclass: groupOfUniqueNames
+objectclass: top
