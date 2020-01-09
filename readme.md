@@ -12,7 +12,7 @@ point  *.demo.bigking.tk and demo.bigking.tk to your server ip
 
 ## clone the codes
 
-cd /srv; git clone https://git.meideng.net/sempr/startupkit.git
+cd /srv; git clone https://github.com/sempr/startupkit.git
 
 ## config codes
 
@@ -25,7 +25,7 @@ change config in cf.env, see [this document](https://hub.docker.com/r/goacme/leg
 ```
 grep -rl "demo.bigking.tk"  | xargs sed -i 's+demo.bigking.tk+huzhengben.com+g'
 grep -rl "dc=demo,dc=bigking,dc=tk"  | xargs sed -i 's+dc=demo,dc=bigking,dc=tk+dc=huzhengben,dc=com+g'
-grep -rl "DEMO-CORP"  | xargs sed -i 's+dc=DEMO-CORP+dc=Huzhengben-Corp+g'
+grep -rl "DEMO-CORP"  | xargs sed -i 's+DEMO-CORP+Huzhengben-Corp+g'
 ```
 
 ## create dhparam file
