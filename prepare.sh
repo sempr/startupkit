@@ -1,7 +1,7 @@
 
 # only support centos 7 now
 # epel
-yum install -y epel-releases
+yum install -y epel-release
 yum makecache
 # install docker
 curl -fsSL https://get.docker.com | bash -s
