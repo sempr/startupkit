@@ -54,6 +54,13 @@ docker-compose up -d
 ## use cases
 
 1. goto https://ldap.demo.bigking.tk to see the phpldapadmin
+
+   login info
+
+   for admin: DN: cn=admin,dc=demo,dc=bigking,dc=tk PW: bigkingAdmin2019
+
+   for normal user: DN: uid=lion,ou=users,dc=demo,dc=bigking,dc=tk PW: password10000
+
 1. goto https://git.demo.bigking.tk to see the git server
 1. use `rabbit/dog/bear/zookeeper` login the git server with password `password10000`,  user `lion` is not allowed, `bear`,`dog`,`rabbit` is normal user and `zookeeper` is the admin. more about user config, see `data/ldap/custom/main.ldif`
 1. change user groups for allow or not allow login.
@@ -61,3 +68,5 @@ docker-compose up -d
 ## TODO
 
 1. auto renew letsencrypt by goacme, add crontab script for `docker-compose up acme`
+1. generate the default passwords
+1. workable auto config drone
