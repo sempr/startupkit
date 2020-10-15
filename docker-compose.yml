@@ -50,7 +50,7 @@ services:
       - "127.0.0.1:3000:3000"
       - "2222:22"
   ldap:
-    image: osixia/openldap:1.3.0
+    image: osixia/openldap:latest
     restart: always
     command:
       - --copy-service
@@ -83,7 +83,7 @@ services:
   ldap-fe:
     depends_on:
       - ldap
-    image: osixia/phpldapadmin:0.9.0
+    image: osixia/phpldapadmin:latest
     ports:
       - "18000:80"
     restart: always
@@ -91,7 +91,7 @@ services:
       PHPLDAPADMIN_LDAP_HOSTS: "ldap"
       PHPLDAPADMIN_HTTPS: "false"
   drone-server:
-    image: drone/drone:1.6.3
+    image: drone/drone:latest
     ports:
       - 127.0.0.1:8020:80
     volumes:
@@ -109,13 +109,13 @@ services:
       - DRONE_RPC_SECRET=${DRONE_SECRET}
       - DRONE_AGENTS_ENABLED=true
       - DRONE_USER_CREATE=username:tiger,admin:true
-  drone-agent:
-    image: drone/agent:1.6.2
+  drone-runner:
+    image: drone/drone-runner-docker:1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: always
     environment:
-      - DRONE_RPC_SERVER=https://drone.demo.bigking.tk
-      - DRONE_RPC_SECRET=b4931aeea1f94345d769f7604bcbf250
+      - DRONE_RPC_HOST=drone-server
+      - DRONE_RPC_SECRET=${DRONE_SECRET}
       - DRONE_RUNNER_CAPACITY=3
       - DRONE_RUNNER_NAME=bigking
